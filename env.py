@@ -48,7 +48,7 @@ class Actors:
 
 class MouseMaze:
 
-    def __init__(self, values,  window=(480,480), rows=6, cols=6, epoch=100, train=False):
+    def __init__(self, actions, values,  window=(480,480), rows=6, cols=6, epoch=100, train=False):
         self.rows = rows
         self.cols = cols
         self.window_width = window[0]
@@ -59,17 +59,15 @@ class MouseMaze:
         self.values = values
         self.train = train
         self.running = False
-        self.actions = ["UP", "DOWN", "LEFT", "RIGHT"]
+        self.actions = actions
 
         self.chars = {}
         self.walls = {}#{(1,1):{(1,2)}, (1,2):{}}
-
 
         pygame.init()
         self.board_colors = [[255, 255, 255], [0, 150, 255]]
 
         self.game_window = pygame.display.set_mode((self.window_width, self.window_height))
-
 
         self.locations = {}
         self.init_chars()
@@ -77,6 +75,7 @@ class MouseMaze:
         self.init_text_values()
         self.draw_board(self.game_window, self.board_colors)
         pygame.display.update()
+
 
     def exit_game(self):
         pygame.quit()
@@ -101,13 +100,13 @@ class MouseMaze:
 
 
     def get_reward(self, cheese=False, impact=False, canMove=True):
-        reward = -0.1
+        reward = 0.0
 
         if cheese:
             print("GOT CHEESE")
             reward = 1
         if impact:
-            print("EATEN")
+            print("DEAD")
             reward = -1
         if canMove == False:
             reward = -0.2
@@ -305,16 +304,15 @@ class MouseMaze:
 
 
 
-
     def place_characters(self, name):
-        col = rand(0, self.cols-1)
-        row = rand(0, self.rows-1)
+        col = rand(0, self.cols)
+        row = rand(0, self.rows)
 
         locs = self.locations.values()
 
         while (col, row) in locs:
-            col = rand(0, self.cols-1)
-            row = rand(0, self.rows-1)
+            col = rand(0, self.cols)
+            row = rand(0, self.rows)
 
         self.locations[name] = (col, row)
         return row, col
@@ -346,18 +344,30 @@ class MouseMaze:
     def get_frame_step(self, ai, prevState, action=0):
 
         canMove = self.controls[action]()
-        _action = None
-        while not canMove:
-            _action = choice(self.actions)
-            canMove = self.controls[_action]()
-
         state = self.get_state()
         reward, status = self.get_reward(self.got_cheese(), self.check_impact(), canMove)
-        if _action:
-            q = ai.learn(0.2, state, _action, prevState)
-            self.updateText(q, prevState, state, _action)
 
         return state, reward , status
+
+    def draw_values(self, window):
+        for k, v in self.values.items():
+            val = round(v[0],2)
+            if k == str(self.chars['cheese'].pos):
+                val = 1
+            elif k == str(self.chars['cat'].pos):
+                val = -1
+            elif k == str(self.chars['trap'].pos):
+                val = -1
+
+
+            if val < 0.0:
+                text = self.font.render(str(val), False, (255, 0, 0))
+            elif val > 0.0:
+                text = self.font.render(str(val), False, (0, 255, 0))
+            else:
+                text = self.font.render(str(val), False, (100, 100, 100))
+
+            window.blit(text, v[1])
 
     def draw_board(self, window, board_colors):
 
@@ -374,42 +384,20 @@ class MouseMaze:
         for name, actor in self.chars.items():
             window.blit(actor.surface, (actor.x, actor.y))
 
-        for k, v in self.values.items():
-            val = round(v[0],2)
-            if k == str(self.chars['cheese'].pos):
-                val = 1
-            elif k == str(self.chars['cat'].pos):
-                val = -1
-            elif k == str(self.chars['trap'].pos):
-                val = -1
-
-
-            if val < 0:
-                text = self.font.render(str(val), False, (255, 0, 0))
-            else:
-                text = self.font.render(str(val), False, (0, 255, 0))
-
-            window.blit(text, v[1])
-
-            self.draw_wall()
+        #self.draw_values(window)
+        #self.draw_wall()
 
 
     #Playing Locally without AI
     def run(self):
 
         event = pygame.event.poll()
-
         if event.type == pygame.QUIT:  # Window close button clicked?
             pass
         elif event.type == pygame.KEYDOWN:
-
-            print("PRESSED ", event.key)
             return event.key
 
         return None
-
-
-
 
 
 

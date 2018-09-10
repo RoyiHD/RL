@@ -80,6 +80,7 @@ class MouseMaze:
     def exit_game(self):
         pygame.quit()
 
+
     def check_impact(self):
         return self.mouse.pos == self.chars['cat'].pos or self.mouse.pos == self.chars['trap'].pos
 
@@ -90,13 +91,14 @@ class MouseMaze:
                                  str(self.chars['trap'].pos),
                                  str(self.chars['cheese'].pos)))
 
+
     def got_cheese(self):
         return self.mouse.pos == self.chars['cheese'].pos
+
 
     def updateScreen(self):
         self.draw_board(self.game_window, self.board_colors)
         pygame.display.update()
-
 
 
     def get_reward(self, cheese=False, impact=False, canMove=True):
@@ -112,6 +114,7 @@ class MouseMaze:
             reward = -0.2
 
         return reward, True if cheese or impact else False
+
 
     def init_text_values(self):
         self.font = pygame.font.SysFont("comicsansms", 12)
@@ -154,21 +157,19 @@ class MouseMaze:
 
 
 
-    #Func to update the text on each row which represents the values
     def updateText(self, q_val, last_state, cur_state, cameFrom):
-
         pos = str(last_state[:6])+cameFrom
         value = self.values.get(pos, None)
         if value:
             value = (q_val, value[1])
             self.values[pos] = value
 
+
     def hit_wall(self, x, y):
         pos = self.mouse.pos[0] + x, self.mouse.pos[1]+y
         if pos in self.walls:
             if self.mouse.pos in self.walls[pos]:
                 return True
-
         return False
 
     def draw_wall(self):
@@ -189,7 +190,6 @@ class MouseMaze:
 
 
     def move(self, x=0, y=0):
-
         if self.hit_wall(x, y):
             return False
 
@@ -198,7 +198,6 @@ class MouseMaze:
 
         new_x = cur_x + (x * self.sq_sz)
         new_y = cur_y + (y * self.sq_sz)
-
 
         if new_x >= 0 and new_x < self.window_width:
             self.mouse.x = new_x
@@ -262,20 +261,16 @@ class MouseMaze:
                 self.mouse.update_rotation(90, delta=delta)
         return True
 
-    #Called when game ends by finding cheese or getting eaten
-    def reset(self):
 
-        #self.locations['mouse'] = (-1, -1)
+    def reset(self):
         row, col = self.place_characters("mouse")
         self.mouse.pos = (0, 0)
         self.mouse.update_pos(col=col, row=row)
         self.mouse.x, self.mouse.y = col * self.sq_sz, row * self.sq_sz
-
         return self.get_state()
 
 
     def init_chars(self):
-
         cheese = Actors(pygame.image.load("resources/images/cheese.png"), scale=(self.sq_sz//2, self.sq_sz//2))
         c_row, c_col = 0,0#self.place_characters("cheese")
         cheese.x, cheese.y = (c_col*self.sq_sz + (self.sq_sz//4)), (c_row*self.sq_sz + (self.sq_sz//4))
@@ -301,7 +296,6 @@ class MouseMaze:
         m_row, m_col = self.place_characters("mouse")
         self.mouse.x, self.mouse.y = m_col * self.sq_sz, m_row * self.sq_sz
         self.mouse.update_pos(col=m_col, row=m_row)
-
 
 
     def place_characters(self, name):
@@ -331,14 +325,12 @@ class MouseMaze:
 
     def init_controls(self):
         self.controls = {
-
             'LEFT': lambda: self.move(x=-1),
             'RIGHT': lambda: self.move(x=1),
             'DOWN': lambda: self.move(y=1),
             'UP': lambda : self.move(y=-1),
             't':lambda : self.test(),
             's':lambda :self.training(),
-
         }
 
     def get_frame_step(self, ai, prevState, action=0):
@@ -348,6 +340,7 @@ class MouseMaze:
         reward, status = self.get_reward(self.got_cheese(), self.check_impact(), canMove)
 
         return state, reward , status
+
 
     def draw_values(self, window):
         for k, v in self.values.items():
@@ -359,7 +352,6 @@ class MouseMaze:
             elif k == str(self.chars['trap'].pos):
                 val = -1
 
-
             if val < 0.0:
                 text = self.font.render(str(val), False, (255, 0, 0))
             elif val > 0.0:
@@ -369,8 +361,8 @@ class MouseMaze:
 
             window.blit(text, v[1])
 
-    def draw_board(self, window, board_colors):
 
+    def draw_board(self, window, board_colors):
         window.fill((255,255,255))
 
         for row in range(self.rows):
@@ -388,7 +380,6 @@ class MouseMaze:
         #self.draw_wall()
 
 
-    #Playing Locally without AI
     def run(self):
 
         event = pygame.event.poll()
@@ -396,7 +387,6 @@ class MouseMaze:
             pass
         elif event.type == pygame.KEYDOWN:
             return event.key
-
         return None
 
 

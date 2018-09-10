@@ -1,7 +1,6 @@
 absl-py==0.2.2
 appnope==0.1.0
 astor==0.6.2
-atari-py==0.1.1
 backports-abc==0.5
 backports.functools-lru-cache==1.5
 backports.shutil-get-terminal-size==1.0.0

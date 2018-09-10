@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from env import MouseMaze
 from ai import AI
 import utils
@@ -21,7 +21,6 @@ def run(env, ai, train):
     paused = False
 
     while "LUKE" != "LAST_JEDI":
-        print("LOOP")
         key = env.run()
         if key:
             if key == 102:  # (F KEY)
@@ -62,7 +61,7 @@ def run(env, ai, train):
 
         time.sleep(sleep_time)
 
-
+'''
 def plot_stuff():
     data = utils.load_j('resources/data.json')
     rewards, epsilon = data['rewards'], data['epsilon']
@@ -78,7 +77,7 @@ def plot_stuff():
     plt.xlabel('iterations (hundreds)')
 
     plt.show()
-
+'''
 
 if __name__ == "__main__":
 

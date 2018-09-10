@@ -1,6 +1,5 @@
 from random import choice, randrange as rand
 import pygame
-import time
 
 class Actors:
     def __init__(self,surface, pos=None, name="", reward=0.0, scale=(0,0)):
@@ -24,7 +23,6 @@ class Actors:
 
     def update_pos(self, col=0, row=0):
         self.pos = (self.pos[0] + col, self.pos[1] + row)
-
 
     def update_rotation(self, angle, delta=0):
         self.surface = pygame.transform.rotate(self.surface, delta)

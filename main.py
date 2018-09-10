@@ -39,17 +39,26 @@ def run(env, ai, train):
         if paused:
             continue
 
-        #STEP 1: Choose Action
-        #STEP 2: Get New State, Reward, Status
-        #STEP 3: Train
+        #STEP 1: Choose Action from ai
 
-        #Updating text to show values
+        #STEP 2: Get New State, Reward, Status from the env
+
+        #STEP 3: Train ai
+
+
         #env.updateText(q_val, state, new_state, action)
         env.updateScreen()
+
+        # STEP 5: Change global var state to new state from the env
+
+
+        #if status:
+            #state = env.reset()
 
         if epsilon > 0:
             epsilon -= DECAY
 
+        iter += 1
         if iter % 50 == 0:
             sum_rewards = ai.calculate_total_rewards()
             rewards.append(sum_rewards)

@@ -1,4 +1,5 @@
 #from matplotlib import pyplot as plt
+from random import  random, choice
 from env import MouseMaze
 from ai import AI
 import utils
@@ -21,6 +22,7 @@ def run(env, ai, train):
     paused = False
 
     while "LUKE" != "LAST_JEDI":
+        env.updateScreen()
         key = env.run()
         if key:
             if key == 102:  # (F KEY)
@@ -39,21 +41,24 @@ def run(env, ai, train):
         if paused:
             continue
 
-        #STEP 1: Choose Action from ai
+        # STEP 1: Choose Action
+        action = ai.choose_action(state, epsilon)
+        #action = env.varify_action(action)
 
-        #STEP 2: Get New State, Reward, Status from the env
+        # STEP 2: Get New State, Reward, Status
+        new_state, reward, status = env.get_frame_step(ai, state, action)
+        # STEP 3: Train
+        q_val = ai.learn(reward, new_state, action, state)
 
-        #STEP 3: Train ai
-
-
-        #env.updateText(q_val, state, new_state, action)
-        env.updateScreen()
-
-        # STEP 5: Change global var state to new state from the env
+        # Step 4 Updating text to show values
+        env.updateText(q_val, state, new_state, action)
 
 
-        #if status:
-            #state = env.reset()
+        # STEP 5: Change state to new state
+        state = new_state
+
+        if status:
+            state = env.reset()
 
         if epsilon > 0:
             epsilon -= DECAY

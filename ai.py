@@ -11,32 +11,29 @@ class AI:
 
     def learn(self, reward, state, action, prev_state):
 
-        #STEP 1: Get current value from Q table for (prev_state, action)
-
-        #STEP 2: Get the max value from list of all (state, actions) pairs
-
-        #STEP 3: Apply Q learning of new value
-
-        #STEP 4: Update the (Prev_state, action) in Q table with new value
-
-        #STEP 5: Return new value
-        return None
+        # STEP 1: Get current value from Q table for (prev_state, action)
+        val = self.Q.get("%s-%s" % (prev_state, action), 0.0)
+        # STEP 2: Get the max value from list of all (state, actions) pairs
+        max_val = max([self.Q.get("%s-%s" % (state, i), 0.0) for i in self.actions])
+        # STEP 3: Apply Q learning of new value
+        new_val = val + self.alpha * (reward + (self.discount * max_val) - val)
+        # STEP 4: Update the (Prev_state, action) in Q table with new value
+        self.Q["%s-%s" % (prev_state, action)] = new_val
+        # STEP 5: Return new value
+        return new_val
 
     def choose_action(self, state, epsilon):
 
-        #STEP 1: Get random number and check if bigger than Epsilon, return random action if smaller
+        if random() < epsilon:
+            return choice(self.actions)
+        values = [self.Q.get("%s-%s" % (state, i), 0.0) for i in self.actions]
+        max_val = max(values)
+        if values.count(max_val) > 1:
+            index = choice([i for i in range(len(values)) if values[i] == max_val])
+        else:
+            index = values.index(max_val)
 
-        #STEP 2: Get all the values of (state, actions) as list
-
-        #STEP 3: extract max value from list in step 2
-
-        #STEP 4: Check if max value occurs more than once:
-            # if so: choose random value from all max values
-            #else: get the index of the max value
-
-        #STEP 5: return the action based on the index of the maximum value
-
-        return None
+        return self.actions[index]
 
     def calculate_total_rewards(self):
         return sum([val for val in self.Q.values()])

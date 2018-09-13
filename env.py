@@ -28,18 +28,7 @@ class Actors:
         self.surface = pygame.transform.rotate(self.surface, delta)
         self.angle = angle
 
-    def move(self):
-        if self.direction == "DOWN":
-            if self.pos != self.end:
-                self.pos = (self.pos[0], self.pos[1]+1)
-            else:
-                self.direction = "UP"
 
-        elif self.direction == "UP":
-            if self.pos != self.start:
-                self.pos = (self.pos[0], self.pos[1] - 1)
-            else:
-                self.direction = "DOWN"
 
 
 
@@ -60,7 +49,7 @@ class MouseMaze:
         self.actions = actions
 
         self.chars = {}
-        self.walls = {}#{(1,1):{(1,2)}, (1,2):{}}
+        self.walls = {(2,1):[(2,2)]}
 
         pygame.init()
         self.board_colors = [[255, 255, 255], [0, 150, 255]]
@@ -164,26 +153,49 @@ class MouseMaze:
 
 
     def hit_wall(self, x, y):
-        pos = self.mouse.pos[0] + x, self.mouse.pos[1]+y
-        if pos in self.walls:
-            if self.mouse.pos in self.walls[pos]:
-                return True
+        new_pos = self.mouse.pos[0] + x, self.mouse.pos[1]+y
+        _key = None
+        for key, val in self.walls.items():
+            if (key[1], key[0]) == self.mouse.pos:
+                _key = key
+
+        if _key:
+            for pos in self.walls[_key]:
+                if y < 0:
+                    if pos[1] > _key[1]:
+                        return True
+
+                if x < 0:
+                    if pos[0] > _key[0]:
+                        return True
         return False
+
 
     def draw_wall(self):
         for key, val in self.walls.items():
             for pos in val:
+                start_y = key[0] * self.sq_sz
+                start_x = key[1] * self.sq_sz
+
+                end_y = pos[0] * self.sq_sz
+                end_x = pos[1] * self.sq_sz
+
+                pygame.draw.line(self.game_window, (255,0,0), (start_x, start_y), (end_x, end_y), 5)
+
+
+                '''
                 if key[0] == pos[0]:
-                    if key[1] < pos[1]:
+                    if key[1] < pos[1]: #drawing on the bottom from left to right
                         pygame.draw.line(self.game_window, (255, 0, 0),
                                          (self.sq_sz * (key[0]), self.sq_sz * (key[1]+1)),
                                          (self.sq_sz * (key[0]+1), self.sq_sz * (key[1]+1)), 5)
-                    else:
+                    else: #drawing on the top from left o right
                         pygame.draw.line(self.game_window, (255, 0, 0),
                                          (self.sq_sz * (key[0]), self.sq_sz * (key[1])),
                                          (self.sq_sz * (key[0] + 1), self.sq_sz * (key[1])), 5)
                 elif key[1] == pos[1]:
                     pass
+                '''
         return
 
 
@@ -307,6 +319,7 @@ class MouseMaze:
             row = rand(0, self.rows)
 
         self.locations[name] = (col, row)
+
         return row, col
 
 
@@ -320,6 +333,14 @@ class MouseMaze:
 
     def start_game(self):
         self.running = True
+
+    def varify_action(self, action):
+        canMove = self.controls[action]()
+        if not canMove:
+            while not canMove:
+                action = choice(self.actions)
+                canMove = self.controls[action]()
+        return action
 
     def init_controls(self):
         self.controls = {
@@ -374,8 +395,8 @@ class MouseMaze:
         for name, actor in self.chars.items():
             window.blit(actor.surface, (actor.x, actor.y))
 
-        #self.draw_values(window)
-        #self.draw_wall()
+        self.draw_values(window)
+        self.draw_wall()
 
 
     def run(self):
